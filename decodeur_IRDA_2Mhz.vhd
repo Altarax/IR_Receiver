@@ -95,7 +95,7 @@ begin
     sraz <= '0' when (recept = '1') else
             '1';
 
-    -- Comptage
+    -- Counting
     count: process(clk_2Mhz, arazb)
     begin
 

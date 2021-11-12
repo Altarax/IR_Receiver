@@ -25,18 +25,18 @@ architecture Behavioral of Recept_trame_IRDA_2Mhz is
     signal etat_present : etat_mae_t;
     signal cpt_temps    : unsigned(16 downto 0) := (others => '0');
     signal cpt_bits     : natural range 0 to 32 := 0;
-    signal IRDA_s			: std_logic;
-    signal sraz			: std_logic;
-	 signal I_IRDA			: std_logic;
+    signal IRDA_s	: std_logic;
+    signal sraz		: std_logic;
+    signal I_IRDA	: std_logic;
     
     signal tr0_1, tr1_0, tr1_2, tr2_5, tr2_3, tr3_4, tr4_3_0, tr4_3_1, tr5_0, tr4_5	: boolean;
 
 begin
 
-	-- Inversement de l'entr�e IRDA
-	IRDA_s <= not(I_IRDA);
+    -- Inversion according to IR specifications
+    IRDA_s <= not(I_IRDA);
 	
-	-- Condtions des transitions
+    -- Transitions
     tr0_1 <= (IRDA_s = '1');
     tr1_0 <= (cpt_temps > 20000 and IRDA_s = '0') or (IRDA_s = '0' and cpt_temps < 16000);
     tr1_2 <= (IRDA_s = '0' and cpt_temps <= 20000 and cpt_temps >= 16000);
@@ -44,11 +44,11 @@ begin
     tr2_3 <= (IRDA_s = '1' and cpt_temps > 5000);
     tr3_4 <= (IRDA_s = '0');
     tr4_3_0 <= (IRDA_s = '1' and cpt_temps <= 1300 and cpt_temps >= 1000 and cpt_bits /= 32);
-	tr4_3_1 <= (IRDA_s = '1' and cpt_temps > 1300 and cpt_bits /= 32);
-	tr5_0 <= (IRDA_s = '0');
-	tr4_5 <= (IRDA_s = '1' and cpt_bits = 32);
+    tr4_3_1 <= (IRDA_s = '1' and cpt_temps > 1300 and cpt_bits /= 32);
+    tr5_0 <= (IRDA_s = '0');
+    tr4_5 <= (IRDA_s = '1' and cpt_bits = 32);
 
-    -- Cr�er la MAE
+    -- State Machine
     mae: process(clk_2Mhz, arazb, IRDA_s, cpt_temps, cpt_bits)
        
     begin
@@ -108,17 +108,17 @@ begin
 
     end process;
     
-    Recept <= 	'1' when (etat_present = et4 and tr4_5)
-				or (etat_present = et2 and tr2_5)
-				else '0';
+    Recept 	<= 1' when (etat_present = et4 and tr4_5)
+		      or (etat_present = et2 and tr2_5)
+		      else '0';
 		   
     new_touche 	<= '1' when (etat_present = et4 and tr4_5)
-				else '0';
+		       else '0';
 							
-	sraz <= 	'1' when (etat_present = et1 or etat_present = et2 or etat_present = et4)
-				else '0';
+    sraz 	<= '1' when (etat_present = et1 or etat_present = et2 or etat_present = et4)
+		       else '0';
 
-   -- Comptage
+   -- Counting
    count: process(clk_2Mhz, arazb)
     begin
 
@@ -134,13 +134,12 @@ begin
        
     end process;
 	 
-   -- W/ Metastability
+   -- Avoid Metastability
    n_metastability: process(clk_2Mhz)
     begin
-
-			if rising_edge(clk_2Mhz) then
-				I_IRDA <= IRDA;
-			end if;
-	end process;
+	if rising_edge(clk_2Mhz) then
+		I_IRDA <= IRDA;
+	end if;
+    end process;
 
 end Behavioral;

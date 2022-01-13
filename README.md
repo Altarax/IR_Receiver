@@ -1,4 +1,4 @@
-# IR_Rceiver_VHDL
+# IR_Receiver_VHDL
 
 ## In writing
 
